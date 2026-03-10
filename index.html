@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wizard Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=UnifrakturMaguntia&family=IM+Fell+English:ital@0;1&family=Cormorant+Garamond:ital,wght@0,300;0,600;1,300&family=Philosopher:ital,wght@0,400;0,700;1,400&family=Josefin+Sans:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;900&display=swap" rel="stylesheet"/>
+  <style>
+
+/* ═══════════════════════════════════════
+   BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  min-height: 100vh;
+  background: transparent;
+  color: #e8dfc8;
+  overflow-x: hidden;
+}
+
+#bgCanvas {
+  position: fixed; inset: 0; z-index: -2;
+  width: 100%; height: 100%;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  opacity: 0.35;
+}
+
+/* ═══════════════════════════════════════
+   HOUSE VARIABLES
+═══════════════════════════════════════ */
+
+body.gryffindor {
+  --body-font: 'IM Fell English', serif;
+  --label-font: 'IM Fell English', serif;
+  --num-font: 'Cinzel', serif;
+  --primary: #ae0001;
+  --primary-2: #d4202a;
+  --accent: #ffd700;
+  --accent-soft: rgba(255,215,0,0.12);
+  --text: #f5e6c8;
+  --muted: #9a7a5a;
+  --card-bg: rgba(28,4,4,0.58);
+  --card-border: rgba(174,0,1,0.4);
+  --card-radius: 4px;
+  --glow: rgba(174,0,1,0.45);
+  --glow2: rgba(255,215,0,0.2);
+  --btn-bg: linear-gradient(160deg,#ae0001,#7a0000);
+  --btn-color: #ffd700;
+  --btn-border: #ffd700;
+  --btn-radius: 3px;
+  --btn-font: 'Cinzel', serif;
+  --btn-letter: 0.1em;
+  --ring-color: #ae0001;
+  --ring-glow: #d4202a;
+  --dot-color: #ffd700;
+  --tab-bg: rgba(174,0,1,0.22);
+  --tab-border: #ae0001;
+  --tab-color: #ffd700;
+}
+
+body.slytherin {
+  --body-font: 'Cormorant Garamond', serif;
+  --label-font: 'Josefin Sans', sans-serif;
+  --num-font: 'Cormorant Garamond', serif;
+  --primary: #2a7a4b;
+  --primary-2: #3dab6b;
+  --accent: #c0c0c0;
+  --accent-soft: rgba(192,192,192,0.08);
+  --text: #d8e8d8;
+  --muted: #5a7a5a;
+  --card-bg: rgba(2,14,8,0.65);
+  --card-border: rgba(42,122,75,0.3);
+  --card-radius: 0px;
+  --glow: rgba(42,122,75,0.4);
+  --glow2: rgba(192,192,192,0.12);
+  --btn-bg: linear-gradient(135deg,#1a472a,#0d2818);
+  --btn-color: #c0c0c0;
+  --btn-border: #2a7a4b;
+  --btn-radius: 0px;
+  --btn-font: 'Josefin Sans', sans-serif;
+  --btn-letter: 0.28em;
+  --ring-color: #2a7a4b;
+  --ring-glow: #3dab6b;
+  --dot-color: #c0c0c0;
+  --tab-bg: rgba(42,122,75,0.15);
+  --tab-border: #2a7a4b;
+  --tab-color: #c0c0c0;
+}
+
+body.ravenclaw {
+  --body-font: 'Philosopher', serif;
+  --label-font: 'Josefin Sans', sans-serif;
+  --num-font: 'Philosopher', serif;
+  --primary: #2e5fd4;
+  --primary-2: #5580f0;
+  --accent: #c8933a;
+  --accent-soft: rgba(200,147,58,0.12);
+  --text: #c8d8f0;
+  --muted: #5a6a8a;
+  --card-bg: rgba(3,8,24,0.62);
+  --card-border: rgba(46,95,212,0.28);
+  --card-radius: 14px;
+  --glow: rgba(46,95,212,0.45);
+  --glow2: rgba(200,147,58,0.2);
+  --btn-bg: linear-gradient(135deg,#1c3b8a,#0e1a50);
+  --btn-color: #c8d8f0;
+  --btn-border: #2e5fd4;
+  --btn-radius: 50px;
+  --btn-font: 'Josefin Sans', sans-serif;
+  --btn-letter: 0.2em;
+  --ring-color: #2e5fd4;
+  --ring-glow: #5580f0;
+  --dot-color: #c8933a;
+  --tab-bg: rgba(46,95,212,0.18);
+  --tab-border: #2e5fd4;
+  --tab-color: #c8d8f0;
+}
+
+body.hufflepuff {
+  --body-font: 'Playfair Display', serif;
+  --label-font: 'Playfair Display', serif;
+  --num-font: 'Playfair Display', serif;
+  --primary: #d4a017;
+  --primary-2: #f0c040;
+  --accent: #f0c040;
+  --accent-soft: rgba(212,160,23,0.14);
+  --text: #f5ead0;
+  --muted: #a07840;
+  --card-bg: rgba(24,14,2,0.58);
+  --card-border: rgba(212,160,23,0.32);
+  --card-radius: 22px;
+  --glow: rgba(212,160,23,0.4);
+  --glow2: rgba(240,192,64,0.2);
+  --btn-bg: linear-gradient(135deg,#d4a017,#a07010);
+  --btn-color: #1a1005;
+  --btn-border: #f0c040;
+  --btn-radius: 50px;
+  --btn-font: 'Playfair Display', serif;
+  --btn-letter: 0.04em;
+  --ring-color: #d4a017;
+  --ring-glow: #f0c040;
+  --dot-color: #d4a017;
+  --tab-bg: rgba(212,160,23,0.18);
+  --tab-border: #d4a017;
+  --tab-color: #f5ead0;
+}
+
+/* ═══════════════════════════════════════
+   LAYOUT
+═══════════════════════════════════════ */
+.app {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 28px 16px;
+  /* extra top padding to clear the focus btn */
+  padding-top: 60px;
+}
+.container {
+  width: min(490px, 96vw);
+  display: flex; flex-direction: column;
+  gap: 13px;
+}
+
+/* ═══════════════════════════════════════
+   FULL FOCUS BUTTON (top-right)
+═══════════════════════════════════════ */
+#focusBtn {
+  position: fixed;
+  top: 16px; right: 18px;
+  z-index: 200;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--card-radius, 6px);
+  color: var(--muted, #888);
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+#focusBtn:hover {
+  color: var(--accent, #ffd700);
+  border-color: var(--primary, #ae0001);
+  background: var(--accent-soft, rgba(255,215,0,0.1));
+}
+#focusBtn svg { display:block; }
+
+/* ═══════════════════════════════════════
+   FULL FOCUS MODE
+═══════════════════════════════════════ */
+
+/* Main UI fades + slides down on enter, reverses on exit */
+.app {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+body.focus-mode .app {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  pointer-events: none;
+}
+
+/* The fullscreen overlay — always rendered, transitions in */
+#focusOverlay {
+  display: flex;
+  position: fixed; inset: 0; z-index: 150;
+  align-items: center; justify-content: center;
+  flex-direction: column;
+  gap: clamp(16px, 3vh, 32px);
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+body.focus-mode #focusOverlay {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+/* Individual children stagger in */
+#focusModeLabel {
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: opacity 0.45s ease 0.15s, transform 0.45s ease 0.15s, font-family 0.4s;
+}
+#focusTime {
+  transform: translateY(14px);
+  opacity: 0;
+  transition: opacity 0.5s ease 0.05s, transform 0.5s ease 0.05s, font-family 0.4s, color 0.5s;
+}
+#focusBar {
+  transform: scaleX(0.8);
+  opacity: 0;
+  transition: opacity 0.4s ease 0.25s, transform 0.4s ease 0.25s;
+  transform-origin: center;
+}
+body.focus-mode #focusModeLabel,
+body.focus-mode #focusTime,
+body.focus-mode #focusBar {
+  opacity: 1;
+  transform: none;
+}
+
+/* Vignette that sweeps in during enter */
+#focusVignette {
+  position: fixed; inset: 0; z-index: 140;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.7) 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+body.focus-mode #focusVignette { opacity: 1; }
+
+/* Giant timer */
+#focusTime {
+  font-family: var(--num-font, 'Cinzel', serif);
+  font-size: clamp(18vw, 22vmin, 28vw);
+  color: var(--accent, #ffd700);
+  text-shadow: 0 0 60px var(--glow), 0 0 120px var(--glow2);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+body.slytherin  #focusTime { font-weight:300; font-style:italic; }
+body.ravenclaw  #focusTime { font-weight:700; letter-spacing:0.04em; }
+body.hufflepuff #focusTime { font-style:italic; }
+
+#focusModeLabel {
+  font-family: var(--label-font, serif);
+  font-size: clamp(0.8rem, 2vmin, 1.1rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted, #888);
+}
+body.slytherin #focusModeLabel { letter-spacing: 0.3em; }
+
+/* Subtle progress bar under the time */
+#focusBar {
+  width: min(460px, 70vw);
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+#focusBarFill {
+  height: 100%;
+  background: var(--ring-color, #ae0001);
+  box-shadow: 0 0 10px var(--ring-glow, #d4202a);
+  width: 100%;
+  transform-origin: left;
+  transition: transform 1s linear, background 0.5s;
+}
+
+/* ═══════════════════════════════════════
+   CARD
+═══════════════════════════════════════ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  padding: 18px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.5s, border-color 0.5s, border-radius 0.5s;
+  position: relative; overflow: hidden;
+}
+
+body.gryffindor .card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+body.slytherin .card::before {
+  content:''; position:absolute; top:0; left:0; bottom:0; width:2px;
+  background:linear-gradient(180deg,transparent,var(--primary),transparent);
+}
+body.ravenclaw .card::before,
+body.ravenclaw .card::after {
+  content:''; position:absolute;
+  width:12px; height:12px;
+  border-color:var(--accent); border-style:solid;
+}
+body.ravenclaw .card::before { top:6px; left:6px; border-width:1px 0 0 1px; }
+body.ravenclaw .card::after  { bottom:6px; right:6px; border-width:0 1px 1px 0; }
+body.hufflepuff .card::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:radial-gradient(circle,rgba(212,160,23,0.05) 1px,transparent 1px);
+  background-size:18px 18px;
+}
+
+/* ═══════════════════════════════════════
+   MODE TABS
+═══════════════════════════════════════ */
+.mode-tabs {
+  display:flex; gap:6px;
+  background:rgba(0,0,0,0.28);
+  border-radius:calc(var(--card-radius) + 6px);
+  padding:4px;
+}
+.mode-tab {
+  flex:1; padding:9px 4px;
+  background:none; border:1px solid transparent;
+  color:var(--muted); cursor:pointer;
+  font-family:var(--label-font);
+  font-size:0.82rem;
+  border-radius:var(--btn-radius);
+  transition:all 0.25s;
+  letter-spacing:var(--btn-letter);
+}
+body.slytherin .mode-tab { text-transform:uppercase; font-size:0.7rem; }
+body.ravenclaw .mode-tab  { text-transform:uppercase; }
+.mode-tab:hover { color:var(--text); }
+.mode-tab.active {
+  background:var(--tab-bg);
+  border-color:var(--tab-border);
+  color:var(--tab-color);
+}
+
+/* ═══════════════════════════════════════
+   DURATION
+═══════════════════════════════════════ */
+.section-label {
+  font-family:var(--label-font);
+  font-size:0.7rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:10px;
+  transition:font-family 0.4s;
+}
+.duration-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.dur-btn {
+  padding:11px 4px;
+  background:rgba(0,0,0,0.28);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--btn-radius);
+  color:var(--muted); cursor:pointer;
+  font-family:var(--num-font);
+  font-size:1rem;
+  transition:all 0.22s;
+  text-align:center;
+}
+.dur-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
+.dur-btn.active {
+  background:var(--accent-soft);
+  border-color:var(--primary);
+  color:var(--accent);
+  box-shadow:0 0 12px var(--glow);
+}
+body.slytherin .dur-btn { font-size:1.35rem; font-weight:300; font-style:italic; }
+body.gryffindor .dur-btn { font-weight:600; }
+body.ravenclaw  .dur-btn { font-weight:700; }
+
+/* ═══════════════════════════════════════
+   TIMER RING
+═══════════════════════════════════════ */
+.timer-section {
+  display:flex; flex-direction:column; align-items:center;
+  padding:6px 0;
+}
+.ring-wrap { position:relative; width:210px; height:210px; }
+.ring-svg   { width:100%; height:100%; transform:rotate(-90deg); }
+.ring-bg    { fill:none; stroke:rgba(255,255,255,0.05); stroke-width:4; }
+.ring-glow-path {
+  fill:none; stroke:var(--ring-glow);
+  stroke-width:14; stroke-linecap:round;
+  opacity:0.1;
+  transition:stroke 0.5s, stroke-dashoffset 1s linear;
+}
+.ring-fill {
+  fill:none; stroke:var(--ring-color);
+  stroke-width:4; stroke-linecap:round;
+  filter:drop-shadow(0 0 5px var(--ring-color));
+  transition:stroke 0.5s, stroke-dashoffset 1s linear;
+}
+body.slytherin  .ring-fill { stroke-dasharray:10 5; stroke-linecap:square; }
+body.ravenclaw  .ring-fill { stroke-width:6; stroke-linecap:square; }
+body.gryffindor .ring-fill { stroke-width:5; }
+body.hufflepuff .ring-fill { stroke-width:5; }
+
+.timer-display {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:5px;
+}
+.timer-time {
+  font-family:var(--num-font);
+  font-size:3rem;
+  color:var(--text);
+  letter-spacing:-0.02em;
+  text-shadow:0 0 24px var(--glow);
+  transition:font-family 0.4s, color 0.5s;
+  line-height:1;
+}
+body.slytherin  .timer-time { font-weight:300; font-style:italic; font-size:3.5rem; letter-spacing:-0.04em; }
+body.gryffindor .timer-time { font-weight:900; color:var(--accent); font-size:2.8rem; }
+body.ravenclaw  .timer-time { font-weight:700; letter-spacing:0.04em; color:var(--accent); }
+body.hufflepuff .timer-time { font-style:italic; color:var(--accent); }
+
+.timer-mode-label {
+  font-family:var(--label-font);
+  font-size:0.7rem; letter-spacing:0.16em;
+  text-transform:uppercase; color:var(--muted);
+  transition:font-family 0.4s;
+}
+body.slytherin .timer-mode-label { letter-spacing:0.28em; font-size:0.65rem; }
+
+.session-dots { display:flex; gap:10px; margin-top:14px; }
+.dot {
+  width:9px; height:9px;
+  border-radius:50%;
+  border:1.5px solid var(--muted);
+  transition:all 0.35s;
+}
+body.slytherin  .dot { border-radius:0; }
+body.ravenclaw  .dot { border-radius:2px; transform:rotate(45deg); }
+body.hufflepuff .dot { border-radius:50%; }
+.dot.done {
+  background:var(--dot-color);
+  border-color:var(--dot-color);
+  box-shadow:0 0 8px var(--glow);
+}
+
+/* ═══════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════ */
+.controls { display:flex; gap:10px; margin-top:14px; }
+.btn {
+  flex:1; padding:14px 10px;
+  border:none; border-radius:var(--btn-radius);
+  cursor:pointer;
+  font-family:var(--btn-font);
+  font-size:0.85rem;
+  letter-spacing:var(--btn-letter);
+  transition:all 0.25s;
+  position:relative; overflow:hidden;
+  text-transform:uppercase;
+}
+.btn::after {
+  content:''; position:absolute; inset:0;
+  background:rgba(255,255,255,0.07);
+  opacity:0; transition:opacity 0.2s;
+}
+.btn:hover::after { opacity:1; }
+
+.btn-primary {
+  background:var(--btn-bg);
+  color:var(--btn-color);
+  border:1px solid var(--btn-border);
+  box-shadow:0 4px 20px var(--glow);
+  flex:2;
+}
+.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px var(--glow); }
+.btn-primary:active { transform:translateY(0); }
+
+.btn-secondary {
+  background:rgba(255,255,255,0.04);
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,0.1);
+}
+.btn-secondary:hover { color:var(--text); border-color:rgba(255,255,255,0.22); }
+
+body.gryffindor .btn-primary {
+  clip-path:polygon(0 0,100% 0,100% 78%,50% 100%,0 78%);
+  padding-bottom:22px;
+}
+
+/* ═══════════════════════════════════════
+   STATS
+═══════════════════════════════════════ */
+.stats-bar { display:flex; gap:10px; }
+.stat {
+  flex:1; text-align:center;
+  background:rgba(0,0,0,0.25);
+  border:1px solid var(--card-border);
+  border-radius:var(--card-radius);
+  padding:12px 6px;
+  backdrop-filter:blur(8px);
+  transition:border-color 0.5s, border-radius 0.5s;
+}
+.stat-num {
+  font-family:var(--num-font);
+  font-size:1.6rem; color:var(--accent);
+  line-height:1;
+  transition:font-family 0.4s, color 0.5s;
+}
+body.slytherin .stat-num { font-weight:300; font-style:italic; font-size:2rem; }
+body.ravenclaw .stat-num { font-weight:700; }
+.stat-lbl {
+  font-family:var(--label-font);
+  font-size:0.62rem; letter-spacing:0.12em;
+  text-transform:uppercase; color:var(--muted);
+  margin-top:4px;
+  transition:font-family 0.4s;
+}
+
+/* ═══════════════════════════════════════
+   HOUSE SELECTION
+═══════════════════════════════════════ */
+.house-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.house-btn {
+  padding:14px 4px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(0,0,0,0.25);
+  cursor:pointer; text-align:center;
+  transition:all 0.25s;
+  position:relative; overflow:hidden;
+  border-radius:var(--card-radius);
+}
+body.gryffindor .house-btn { border-radius:4px; }
+body.slytherin  .house-btn { border-radius:0; }
+body.ravenclaw  .house-btn { border-radius:12px; }
+body.hufflepuff .house-btn { border-radius:22px; }
+
+.house-btn .hname {
+  font-size:0.62rem; letter-spacing:0.1em;
+  text-transform:uppercase; color:var(--muted);
+  font-family:var(--label-font);
+  transition:color 0.25s, font-family 0.4s;
+}
+.house-btn:hover { transform:translateY(-3px); }
+.house-btn.active { border-color:var(--primary); background:var(--accent-soft); }
+.house-btn.active .hname { color:var(--text); }
+
+/* ═══════════════════════════════════════
+   AMBIENCE
+═══════════════════════════════════════ */
+.ambience-row { display:flex; gap:8px; }
+.amb-btn {
+  flex:1; padding:11px 6px;
+  border-radius:var(--btn-radius);
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(0,0,0,0.25);
+  color:var(--muted); cursor:pointer;
+  font-family:var(--label-font);
+  font-size:0.8rem; letter-spacing:0.08em;
+  transition:all 0.25s;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  text-transform:uppercase;
+}
+body.slytherin .amb-btn { border-radius:0; letter-spacing:0.22em; font-size:0.7rem; }
+.amb-btn:hover { color:var(--text); }
+.amb-btn.active { border-color:var(--primary); color:var(--accent); background:var(--accent-soft); }
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast {
+  position:fixed; bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(16px);
+  background:rgba(8,5,16,0.94);
+  border:1px solid var(--primary);
+  border-radius:var(--card-radius);
+  padding:12px 22px;
+  font-family:var(--body-font);
+  font-size:0.95rem; color:var(--accent);
+  z-index:300; opacity:0;
+  transition:all 0.4s;
+  pointer-events:none;
+  backdrop-filter:blur(14px);
+  white-space:nowrap; max-width:90vw;
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ═══════════════════════════════════════
+   FLASH
+═══════════════════════════════════════ */
+.flash-overlay {
+  position:fixed; inset:0; z-index:50; pointer-events:none;
+  background:radial-gradient(circle at center,var(--primary),transparent 65%);
+  opacity:0;
+}
+.flash-overlay.flash { animation:dFlash 0.9s ease-out forwards; }
+@keyframes dFlash { 0%{opacity:0.35} 100%{opacity:0} }
+
+/* ═══════════════════════════════════════
+   PULSE
+═══════════════════════════════════════ */
+@keyframes pulseGlow {
+  0%,100% { text-shadow:0 0 20px var(--glow); }
+  50%      { text-shadow:0 0 45px var(--glow),0 0 80px var(--glow2); }
+}
+.timer-time.running,
+#focusTime.running { animation:pulseGlow 2.2s ease-in-out infinite; }
+
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:2px; }
+
+</style>
+</head>
+<body class="gryffindor">
+
+<canvas id="bgCanvas"></canvas>
+<div class="flash-overlay" id="flash"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Full Focus button — always visible -->
+<button id="focusBtn" title="Full Focus Mode" aria-label="Toggle full focus mode">
+  <!-- Fullscreen icon (enter state) -->
+  <svg id="iconExpand" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+    <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+  </svg>
+  <!-- Compress icon (exit state) -->
+  <svg id="iconCompress" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+    <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
+    <line x1="10" y1="14" x2="3" y2="21"/><line x1="21" y1="3" x2="14" y2="10"/>
+  </svg>
+</button>
+
+<!-- Vignette layer -->
+<div id="focusVignette"></div>
+
+<!-- Full Focus overlay -->
+<div id="focusOverlay">
+  <div id="focusModeLabel">Focus Session</div>
+  <div id="focusTime">25:00</div>
+  <div id="focusBar"><div id="focusBarFill"></div></div>
+</div>
+
+<!-- Main UI -->
+<div class="app">
+  <div class="container">
+
+    <div class="card" style="padding:8px;">
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="focus">Focus</button>
+        <button class="mode-tab" data-mode="short">Short Break</button>
+        <button class="mode-tab" data-mode="long">Long Break</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Duration Charm</div>
+      <div class="duration-grid">
+        <button class="dur-btn active" data-min="25">25</button>
+        <button class="dur-btn" data-min="50">50</button>
+        <button class="dur-btn" data-min="90">90</button>
+        <button class="dur-btn" data-min="180">180</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="timer-section">
+        <div class="ring-wrap">
+          <svg class="ring-svg" viewBox="0 0 210 210">
+            <circle class="ring-bg" cx="105" cy="105" r="90"/>
+            <circle class="ring-glow-path" cx="105" cy="105" r="90"
+              id="ringGlow" stroke-dasharray="565" stroke-dashoffset="0"/>
+            <circle class="ring-fill" cx="105" cy="105" r="90"
+              id="ringFill" stroke-dasharray="565" stroke-dashoffset="0"/>
+          </svg>
+          <div class="timer-display">
+            <span class="timer-time" id="timerDisplay">25:00</span>
+            <span class="timer-mode-label" id="modeLabel">Focus Session</span>
+          </div>
+        </div>
+        <div class="session-dots" id="sessionDots">
+          <div class="dot"></div><div class="dot"></div>
+          <div class="dot"></div><div class="dot"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn btn-primary" id="startBtn">Incendio</button>
+        <button class="btn btn-secondary" id="resetBtn">Reparo</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <div class="stat">
+        <div class="stat-num" id="statSessions">0</div>
+        <div class="stat-lbl">Sessions</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statMins">0</div>
+        <div class="stat-lbl">Mins Focused</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" id="statStreak">0</div>
+        <div class="stat-lbl">Streak</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">House Allegiance</div>
+      <div class="house-grid">
+        <button class="house-btn active" data-house="gryffindor"><span class="hname">Gryffindor</span></button>
+        <button class="house-btn" data-house="slytherin"><span class="hname">Slytherin</span></button>
+        <button class="house-btn" data-house="ravenclaw"><span class="hname">Ravenclaw</span></button>
+        <button class="house-btn" data-house="hufflepuff"><span class="hname">Hufflepuff</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Common Room Ambience</div>
+      <div class="ambience-row">
+        <button class="amb-btn" data-sound="rain">Rain</button>
+        <button class="amb-btn" data-sound="fire">Fire</button>
+        <button class="amb-btn" data-sound="library">Library</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ──────── Canvas bg ────────
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+let bgW, bgH, stars = [];
+let currentHouse = 'gryffindor';
+
+const houseGrads = {
+  gryffindor: ['#1a0000','#0d0508','#0f0000'],
+  slytherin:  ['#000d04','#040e08','#000a04'],
+  ravenclaw:  ['#000412','#020712','#00030c'],
+  hufflepuff: ['#110900','#0e0700','#130b00'],
+};
+const houseStarCols = {
+  gryffindor: ['#ae0001','#ffd700','#ffffff'],
+  slytherin:  ['#2a7a4b','#c0c0c0','#ffffff'],
+  ravenclaw:  ['#2e5fd4','#c8933a','#ffffff'],
+  hufflepuff: ['#d4a017','#f0c040','#ffffff'],
+};
+
+function initStars() {
+  stars = [];
+  const cols = houseStarCols[currentHouse];
+  for (let i = 0; i < 220; i++) {
+    stars.push({
+      x: Math.random() * bgW,
+      y: Math.random() * bgH,
+      r: Math.random() * 1.3,
+      op: Math.random() * 0.65 + 0.1,
+      vy: Math.random() * 0.25 + 0.04,
+      color: cols[Math.floor(Math.random() * cols.length)],
+      tp: Math.random() * Math.PI * 2,
+      ts: Math.random() * 0.008 + 0.003,
+    });
+  }
+}
+function resizeBg() {
+  bgW = bgCanvas.width = window.innerWidth;
+  bgH = bgCanvas.height = window.innerHeight;
+  initStars();
+}
+window.addEventListener('resize', resizeBg);
+resizeBg();
+
+function drawBg() {
+  bgCtx.clearRect(0,0,bgW,bgH);
+  const cols = houseGrads[currentHouse];
+  const grad = bgCtx.createRadialGradient(bgW/2,bgH*.4,0,bgW/2,bgH*.4,bgW*.9);
+  grad.addColorStop(0, cols[0]);
+  grad.addColorStop(0.55, cols[1]);
+  grad.addColorStop(1, cols[2]);
+  bgCtx.fillStyle = grad;
+  bgCtx.fillRect(0,0,bgW,bgH);
+  stars.forEach(s => {
+    s.tp += s.ts;
+    const op = s.op * (0.45 + 0.55 * Math.sin(s.tp));
+    const hex = Math.round(op * 255).toString(16).padStart(2,'0');
+    bgCtx.beginPath();
+    bgCtx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    bgCtx.fillStyle = s.color + hex;
+    bgCtx.fill();
+    s.y -= s.vy;
+    if (s.y < -2) { s.y = bgH + 2; s.x = Math.random() * bgW; }
+  });
+  requestAnimationFrame(drawBg);
+}
+drawBg();
+
+// ──────── Timer core ────────
+const CIRC = 2 * Math.PI * 90;
+let totalSec = 1500, remSec = 1500;
+let timerInt = null, isRunning = false;
+let currentMode = 'focus';
+let sessionsCompleted = 0, totalMins = 0, streak = 0;
+
+const modeDur    = { focus:25, short:5, long:15 };
+const modeLabels = { focus:'Focus Session', short:'Short Break', long:'Long Break' };
+
+const spells = {
+  gryffindor: { start:'Incendio', pause:'Immobulus', reset:'Reparo',    toast:'Session complete, Gryffindor.' },
+  slytherin:  { start:'Serpensortia', pause:'Petrificus', reset:'Finite',   toast:'Cunning ambition fulfilled.' },
+  ravenclaw:  { start:'Lumos',    pause:'Nox',        reset:'Obliviate', toast:'Wit beyond measure — well done.' },
+  hufflepuff: { start:'Herbivicus', pause:'Immobulus', reset:'Reparo',   toast:'Patience rewarded. Session done.' },
+};
+
+const timerEl  = document.getElementById('timerDisplay');
+const modeLbl  = document.getElementById('modeLabel');
+const startBtn = document.getElementById('startBtn');
+const resetBtn = document.getElementById('resetBtn');
+const ringFill = document.getElementById('ringFill');
+const ringGlow = document.getElementById('ringGlow');
+const dotsCont = document.getElementById('sessionDots');
+const toastEl  = document.getElementById('toast');
+const flashEl  = document.getElementById('flash');
+const statS    = document.getElementById('statSessions');
+const statM    = document.getElementById('statMins');
+const statSt   = document.getElementById('statStreak');
+
+// Full focus elements
+const focusTimeEl  = document.getElementById('focusTime');
+const focusBarFill = document.getElementById('focusBarFill');
+const focusModeLbl = document.getElementById('focusModeLabel');
+
+const fmt = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+
+function updateRing() {
+  const off = CIRC * (1 - remSec/totalSec);
+  ringFill.style.strokeDashoffset = off;
+  ringGlow.style.strokeDashoffset = off;
+}
+
+function updateFocusBar() {
+  const pct = remSec / totalSec;
+  focusBarFill.style.transform = `scaleX(${pct})`;
+}
+
+function updateDisp() {
+  const t = fmt(remSec);
+  timerEl.textContent = t;
+  focusTimeEl.textContent = t;
+  updateRing();
+  updateFocusBar();
+}
+
+function showToast(msg) {
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 3500);
+}
+
+function onComplete() {
+  clearInterval(timerInt); isRunning = false;
+  startBtn.textContent = spells[currentHouse].start;
+  timerEl.classList.remove('running');
+  focusTimeEl.classList.remove('running');
+  flashEl.classList.add('flash');
+  setTimeout(() => flashEl.classList.remove('flash'), 900);
+  if (currentMode === 'focus') {
+    sessionsCompleted++; totalMins += Math.round(totalSec/60); streak++;
+    updateStats(); updateDots();
+    showToast(spells[currentHouse].toast);
+  } else {
+    showToast('Break complete — back to your studies.');
+  }
+  if (Notification.permission === 'granted')
+    new Notification('Wizard Timer', { body: currentMode==='focus'?'Session done! Rest up.':'Break over!' });
+}
+
+function tick() { if (remSec<=0){onComplete();return;} remSec--; updateDisp(); }
+
+startBtn.addEventListener('click', () => {
+  if (isRunning) {
+    clearInterval(timerInt); isRunning = false;
+    startBtn.textContent = spells[currentHouse].start;
+    timerEl.classList.remove('running');
+    focusTimeEl.classList.remove('running');
+  } else {
+    if (remSec===0){ remSec=totalSec; updateDisp(); }
+    timerInt = setInterval(tick,1000); isRunning = true;
+    startBtn.textContent = spells[currentHouse].pause;
+    timerEl.classList.add('running');
+    focusTimeEl.classList.add('running');
+    if (Notification.permission==='default') Notification.requestPermission();
+  }
+});
+
+resetBtn.addEventListener('click', () => {
+  clearInterval(timerInt); isRunning=false;
+  remSec=totalSec; updateDisp();
+  startBtn.textContent = spells[currentHouse].start;
+  timerEl.classList.remove('running');
+  focusTimeEl.classList.remove('running');
+});
+
+document.querySelectorAll('.dur-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  clearInterval(timerInt); isRunning=false;
+  totalSec=+btn.dataset.min*60; remSec=totalSec; updateDisp();
+  startBtn.textContent=spells[currentHouse].start;
+  timerEl.classList.remove('running'); focusTimeEl.classList.remove('running');
+}));
+
+document.querySelectorAll('.mode-tab').forEach(tab => tab.addEventListener('click', () => {
+  document.querySelectorAll('.mode-tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  currentMode=tab.dataset.mode;
+  modeLbl.textContent=modeLabels[currentMode];
+  focusModeLbl.textContent=modeLabels[currentMode];
+  totalSec=modeDur[currentMode]*60; remSec=totalSec;
+  clearInterval(timerInt); isRunning=false; updateDisp();
+  startBtn.textContent=spells[currentHouse].start;
+  timerEl.classList.remove('running'); focusTimeEl.classList.remove('running');
+}));
+
+document.querySelectorAll('.house-btn').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.house-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  currentHouse=btn.dataset.house;
+  document.body.className = currentHouse + (isFocusMode ? ' focus-mode' : '');
+
+  initStars();
+  startBtn.textContent = isRunning ? spells[currentHouse].pause : spells[currentHouse].start;
+  resetBtn.textContent = spells[currentHouse].reset;
+  showToast(`${currentHouse.charAt(0).toUpperCase()+currentHouse.slice(1)} — allegiance sworn.`);
+}));
+
+function updateStats() { statS.textContent=sessionsCompleted; statM.textContent=totalMins; statSt.textContent=streak; }
+function updateDots() {
+  const dots=dotsCont.querySelectorAll('.dot');
+  const idx=(sessionsCompleted-1)%4;
+  dots.forEach((d,i)=>d.classList.toggle('done',i<=idx));
+}
+
+// ──────── Full Focus Mode ────────
+let isFocusMode = false;
+const focusBtn      = document.getElementById('focusBtn');
+const iconExpand    = document.getElementById('iconExpand');
+const iconCompress  = document.getElementById('iconCompress');
+
+function setFocusMode(on) {
+  isFocusMode = on;
+  document.body.className = currentHouse + (on ? ' focus-mode' : '');
+  iconExpand.style.display   = on ? 'none'  : 'block';
+  iconCompress.style.display = on ? 'block' : 'none';
+  if (on) {
+    document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(()=>{});
+  } else {
+    document.fullscreenElement && document.exitFullscreen && document.exitFullscreen().catch(()=>{});
+  }
+}
+
+focusBtn.addEventListener('click', () => setFocusMode(!isFocusMode));
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && isFocusMode) setFocusMode(false);
+});
+
+// ──────── Ambience ────────
+let aCtx=null,aNode=null,aActive=null;
+function getACtx(){ if(!aCtx) aCtx=new(window.AudioContext||window.webkitAudioContext)(); return aCtx; }
+function makeNoise(c,lp,vol){
+  const buf=c.createBuffer(1,c.sampleRate*3,c.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+  const src=c.createBufferSource(); src.buffer=buf; src.loop=true;
+  const f=c.createBiquadFilter(); f.type='lowpass'; f.frequency.value=lp;
+  const g=c.createGain(); g.gain.value=vol;
+  src.connect(f).connect(g).connect(c.destination); src.start();
+  return {stop:()=>{try{src.stop();}catch(e){}}};
+}
+document.querySelectorAll('.amb-btn').forEach(btn => btn.addEventListener('click',()=>{
+  const s=btn.dataset.sound;
+  if(aActive===s){ if(aNode){aNode.stop();aNode=null;} aActive=null; document.querySelectorAll('.amb-btn').forEach(b=>b.classList.remove('active')); return; }
+  if(aNode){aNode.stop();aNode=null;}
+  document.querySelectorAll('.amb-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); aActive=s;
+  const c=getACtx();
+  if(s==='rain')      aNode=makeNoise(c,1300,0.3);
+  else if(s==='fire') aNode=makeNoise(c,500,0.25);
+  else                aNode=makeNoise(c,3000,0.06);
+}));
+
+// Init
+resetBtn.textContent = spells[currentHouse].reset;
+focusModeLbl.textContent = modeLabels[currentMode];
+updateDisp();
+</script>
+</body>
+</html>
